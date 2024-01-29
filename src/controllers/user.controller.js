@@ -86,7 +86,11 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User registerd Successfully"));
 });
 
-// login
+
+
+
+
+// login part
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
   if (!(username || email)) {
@@ -136,6 +140,10 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
+
+
+
+// logout part......
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
@@ -163,6 +171,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 
 
+
+// refreshAccessToken part 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 

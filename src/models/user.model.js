@@ -52,52 +52,41 @@ const userSchema = new Schema(
 // using jwt and bcrypt
 
 // bcrypt part
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   try {
     if (!this.isModified("password")) {
       return next();
-    };
+    }
     this.password = await bcrypt.hash(this.password, 10);
   } catch (error) {
     next(error);
   }
 });
-userSchema.methods.isPasswordCurrent = async function(password) {
+
+userSchema.methods.isPasswordCorrect = async function (password) {
   try {
     return await bcrypt.compare(password, this.password);
   } catch (error) {
     throw error;
   }
-}
-
-
-
-// useing jsonwebtoken 
-userSchema.methods.generateAccessToken = function() {
-  return jwt.sign(
-    {
-      _id: this._id,
-      fullName: this.fullName,
-      username: this.username,
-      email: this.email
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-    }
-  )
 };
-userSchema.methods.generateRefreshToken = function() {
-  return jwt.sign(
-    {
-      _id: this._id
-    },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY
-    }
-  )
-}
+
+// jwt part
+userSchema.methods.generateAccessToken = function () {
+  return jwt.sign({
+    _id: this._id,
+    email: this.email,
+    username: this.username,
+    fullName: this.fullName,
+  }, 
+  process.env.ACCESS_TOKEN_SECRET,
+  {expiresIn: process.env.ACCESS_TOKEN_EXPIRY}
+  );
+};
+
+userSchema.methods.generateRefreshToken = function () {
+    return jwt.sign({_id: this._id}, process.env.REFRESH_TOKEN_SECRET, {expiresIn: process.env.REFRESH_TOKEN_EXPIRY});
+};
 
 const User = mongoose.model("User", userSchema);
 
